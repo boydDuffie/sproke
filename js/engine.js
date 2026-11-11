@@ -758,11 +758,12 @@
     var pool = S.PHRASES.filter(function (p) { return !o.ids || o.ids.indexOf(p.id) >= 0; });
     var p = pickW(pool, ctx, function (x) { return 'p:' + x.id; });
     if (!p) return null;
-    var s = { no: [[slot(p.no)]], en: [[slot(p.en)]], keys: ['p:' + p.id], end: /^(hva|hvor|hvem|hvordan|snakker)/.test(p.no[0]) ? '?' : '' };
+    function mark(x) { return /^(hva|hvor|hvem|hvordan|snakker)/.test(x.no[0]) ? '?' : ''; }
+    var s = { no: [[slot(p.no)]], en: [[slot(p.en)]], keys: ['p:' + p.id], end: mark(p) };
     var dir = pickDir(o), mode = o.mode || (chance(0.35) ? 'choice' : 'write');
     if (mode === 'choice') {
       var toNo = dir === 'en-no', other = sample(S.PHRASES.filter(function (x) { return x.id !== p.id; }), 3);
-      var r = optionsWith(cap(toNo ? p.no[0] : p.en[0]), other.map(function (x) { return cap(toNo ? x.no[0] : x.en[0]); }), [], 4);
+      var r = optionsWith(cap(toNo ? p.no[0] : p.en[0]) + s.end, other.map(function (x) { return cap(toNo ? x.no[0] : x.en[0]) + mark(x); }), [], 4);
       return {
         kind: 'choice', title: toNo ? 'How do you say this in Norwegian?' : 'What does this mean?',
         prompt: { big: cap(toNo ? p.en[0] : p.no[0]) + s.end, lang: toNo ? 'en' : 'no', say: toNo ? null : p.no[0] },
@@ -822,7 +823,7 @@
 
   /** Adjective agreement: stor / stort / store. */
   M.adj = function (ctx, o) {
-    var adjs = ctx.adjs && ctx.adjs.length ? ctx.adjs : S.adjList;
+    var adjs = o.adjs || (ctx.adjs && ctx.adjs.length ? ctx.adjs : S.adjList);
     var frame = pick(o.frames || ['attr', 'pred', 'def']);
     var pool = nounPool(ctx, o, function (n) { return adjs.some(function (a) { return S.adjFits(a, n); }) && !n.mass && !has(n, 'time body'); });
     if (!pool.length) return null;
