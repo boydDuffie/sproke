@@ -83,6 +83,7 @@ js/app.js             the interface
 sw.js                 offline cache
 tests/run.js          tests for the grammar, generator and checker
 tools/build.js        single-file bundle
+tools/artifact-sync.js  optional progress sync for a copy published as a claude.ai artifact
 ```
 
 ## Adding words
