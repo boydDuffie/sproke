@@ -283,10 +283,16 @@
       if (!objs.length) return null;
       var focus = objs.filter(function (id) { return (ctx.focusN || []).indexOf(id) >= 0; });
       var id = o.noun || (focus.length && chance(0.8) ? pickW(focus, ctx, function (x) { return 'n:' + x; }) : pick(objs));
-      var n = S.nouns[id], form = o.nform || pick(objectForms(n, o.nf));
+      var n = S.nouns[id], mood = pickTense(v, o), forms = objectForms(n, o.nf);
+      // "ikke en …" is not how Norwegian negates (that is "ingen"), so negated objects are definite
+      if (mood.neg) {
+        forms = forms.filter(function (f) { return f === 'ds' || f === 'dp' || (n.mass && f === 'is'); });
+        if (!forms.length) forms = ['ds'];
+      }
+      var form = o.nform || pick(forms);
       if (n.mass && (form === 'ip' || form === 'dp')) return null;
       var obj = S.np(id, form, npOptions(ctx, n, form, o));
-      var mood = pickTense(v, o), subj = pickSubject(ctx, v, o, id);
+      var subj = pickSubject(ctx, v, o, id);
       var c = clause({ subj: subj, verb: v, tense: mood.tense, modal: mood.modal, neg: mood.neg, q: mood.q, front: mood.front, tailNo: obj.no, tailEn: [slot(obj.en)] });
       c.keys.push(obj.key);
       return c;
@@ -528,7 +534,7 @@
     if (useVerb) {
       var vp = verbPool(ctx, o), vid = pickW(vp, ctx, function (x) { return 'w:' + x; });
       if (!vid) return null;
-      var v = S.verbs[vid], en = 'to ' + (v.x.gloss || S.enVerbForm(v, 'inf').replace(/^to /, ''));
+      var v = S.verbs[vid], en = S.enVerbForm(v, 'inf');
       var vOthers = sample(ctx.verbs.filter(function (x) { return x !== vid && S.verbs[x].enRaw.split(',')[0] !== v.enRaw.split(',')[0]; }), 3);
       if (mode === 'type') return {
         kind: 'type', title: 'Write this in Norwegian', prompt: { big: en, lang: 'en' }, lang: 'no', pre: 'å',

@@ -145,6 +145,8 @@
     sheep: 'sheep', reindeer: 'reindeer', moose: 'moose', elk: 'elk', potato: 'potatoes',
     dwarf: 'dwarves', nisse: 'nisser'
   };
+  // second plural that is just as good
+  S.EN_PLURALS_ALT = { nisse: 'nisses', dwarf: 'dwarfs' };
 
   // Complements reused by a few verbs.
   var NORSK = [{ no: 'norsk', en: 'Norwegian' }, { no: 'engelsk', en: 'English' }];

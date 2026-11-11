@@ -110,7 +110,12 @@
   S.enA = function (w) { return (/^[aeiou]/i.test(w) ? 'an ' : 'a ') + w; };
   S.enNoun = function (n) {
     if (typeof n === 'string') n = S.nouns[n];
-    return n.enRaw.split('|').map(function (sg) { return { sg: sg, pl: S.enPlural(sg) }; });
+    var out = [];
+    n.enRaw.split('|').forEach(function (sg) {
+      out.push({ sg: sg, pl: S.enPlural(sg) });
+      if (S.EN_PLURALS_ALT[sg]) out.push({ sg: sg, pl: S.EN_PLURALS_ALT[sg] });
+    });
+    return out;
   };
   /** English wording of one noun form, all synonyms. */
   S.enNounForm = function (n, form) {
